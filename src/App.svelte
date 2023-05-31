@@ -3,7 +3,7 @@
   // import { JsonDatabase } from "brackets-json-db"
   import PlayersTable from "./components/PlayersTable.svelte";
   import RegisterPlayer from "./components/RegisterPlayer.svelte";
-  
+  import TournamentMatches from "./components/TournamentMatches.svelte";
   import { onMount } from 'svelte';
   import {
     getFirestore,
@@ -33,7 +33,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const dbRef = collection(db, "users");
-  const docRef = doc(db, "users", "users");
   let isSended = true;
   // @ts-ignore
   const arrUsers = [];
@@ -94,6 +93,7 @@
 
   let editableId: string = ""
   let promise
+  let startedTournament = false
   function backToHome(){
     isSended = true
   }
@@ -135,14 +135,11 @@
   }
   onMount(async () =>{
     handleGet()
-  })  
-  function getNearestPowerOfTwo(input: number): number{
-    
-    return Math.pow(2,Math.ceil(Math.log2(input))-1)
-    
-    
-  }
-  console.log(getNearestPowerOfTwo(13))
+  }) 
+  function startTournament(){
+    startedTournament = true
+    isSended = false
+  } 
 </script>
 
 <main>
@@ -162,12 +159,15 @@
       {/await}
       
     </table>
-    <button class=" mt-2 bg-zinc-500 hover:bg-zinc-700 ease-out duration-300 text-white font-bold py-2 px-4 rounded-full" on:click={()=>{}}>Start tournament</button>
+    <button class=" mt-2 bg-zinc-500 hover:bg-zinc-700 ease-out duration-300 text-white font-bold py-2 px-4 rounded-full" on:click={()=>startTournament()}>Start tournament</button>
 
   </div>
   
+  {:else if startedTournament}
+  <TournamentMatches {arrUsers}/>
   {:else}
   <RegisterPlayer bind:fname={fname} bind:lname={lname} bind:age={age} bind:city={city} sendNewPlayer={sendNewPlayer} backToHome={backToHome}/>
+  
   {/if}
 </main>
 
